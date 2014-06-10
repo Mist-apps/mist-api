@@ -1,0 +1,14 @@
+{
+
+	"database": {
+		"host":		"localhost",
+		"port":		27017,
+		"database":	"google"
+	},
+
+	"server": {
+		"host":		"localhost",
+		"port":		8081
+	}
+
+}

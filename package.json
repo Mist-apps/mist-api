@@ -1,0 +1,10 @@
+{
+	"name": "oms-api",
+	"description": "OMS REST API for the OMS application",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"express": "3.x",
+		"mongodb": "1.x"
+	}
+}
