@@ -40,7 +40,7 @@ var logger = require('./logger');
 // Config
 var config = {};
 // An array of files that will be used to find the bootstrap.properties file
-var files = ['config.json'];
+var files = ['config.json', '/opt/mist-api/config.json', '/etc/mist-api/config.json'];
 
 
 
