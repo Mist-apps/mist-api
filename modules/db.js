@@ -40,7 +40,7 @@
 var mongo = require('mongodb');
 var async = require('async');
 // Custom
-var logger = require('logger');
+var logger = require('./logger');
 
 
 
@@ -401,7 +401,7 @@ Dao.prototype.findOne = function (query, callback) {
  */
 Dao.prototype.findById = function (id, callback) {
 	try {
-		id = new BSON.ObjectID(new String(id));
+		id = new BSON.ObjectID(id);
 	} catch (err) {
 		if (callback) callback();
 		return;
@@ -467,7 +467,7 @@ Dao.prototype.insert = function (item, callback) {
  */
 Dao.prototype.update = function (id, item, callback) {
 	try {
-		id = new BSON.ObjectID(new String(id));
+		id = new BSON.ObjectID(id);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
@@ -485,7 +485,7 @@ Dao.prototype.update = function (id, item, callback) {
  */
 Dao.prototype.replace = function (id, item, callback) {
 	try {
-		id = new BSON.ObjectID(new String(id));
+		id = new BSON.ObjectID(id);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
@@ -501,7 +501,7 @@ Dao.prototype.replace = function (id, item, callback) {
  */
 Dao.prototype.remove = function (id, callback) {
 	try {
-		id = new BSON.ObjectID(new String(id));
+		id = new BSON.ObjectID(id);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;

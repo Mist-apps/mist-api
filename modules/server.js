@@ -25,9 +25,10 @@
 
 // Built-in
 var express = require('express');
+var bodyParser = require('body-parser')
 // Custom
-var logger = require('logger');
-var config = require('config');
+var logger = require('./logger');
+var config = require('./config');
 var noteRoutes = require('../routes/note.js');
 var userRoutes = require('../routes/user.js');
 
@@ -61,12 +62,8 @@ var _configureServer = function () {
 			next();
 		}
 	};
-
-	server.configure(function () {
-		server.use(express.logger('dev'));
-		server.use(allowCrossDomain);
-		server.use(express.bodyParser());
-	});
+	server.use(allowCrossDomain);
+	server.use(bodyParser());
 };
 
 /**

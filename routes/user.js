@@ -12,8 +12,8 @@
  */
 
 // Custom
-var logger = require('logger');
-var db = require('db');
+var logger = require('../modules/logger');
+var db = require('../modules/db');
 
 
 

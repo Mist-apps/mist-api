@@ -24,7 +24,7 @@
  */
 
 // Global
-var bootstrap = require('bootstrap');
+var bootstrap = require('./modules/bootstrap');
 // Custom
 var server;
 
@@ -54,7 +54,7 @@ var gracefulExit = function (callback) {
 
 bootstrap.bootstrap(gracefulExit, function () {
 	// Load Modules
-	server = require('server');
+	server = require('./modules/server');
 	// Start
 	server.start();
 });

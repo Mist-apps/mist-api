@@ -29,9 +29,9 @@
 var fs  = require('fs');
 var async = require('async');
 // Custom
-var logger = require('logger');
-var db = require('db');
-var config = require('config');
+var logger = require('./logger');
+var db = require('./db');
+var config = require('./config');
 
 
 

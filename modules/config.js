@@ -29,7 +29,7 @@
 // Built-in
 var fs  = require('fs');
 // Custom
-var logger = require('logger');
+var logger = require('./logger');
 
 
 
