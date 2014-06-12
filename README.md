@@ -47,4 +47,4 @@ These manual works on debian-like distros (tested on Debian/Ubuntu).
 #### For a development installation:
 * deploy the app: `deploy dev`
 
-That's all ! Updating can be done by executing only the command: deploy dev/prod
+That's all ! Updating can be done by executing only the command: `deploy dev/prod`
