@@ -73,7 +73,7 @@ var login = function (request, response) {
  * @name	Get a user
  */
 var find = function(request, response) {
-	userDao._findOne({user: request.user}, function (err, item) {
+	userDao._findOne({_id: new db.BSON.ObjectID(request.user)}, function (err, item) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -95,7 +95,7 @@ var find = function(request, response) {
  * TODO param body
  */
 var insert = function(request, response) {
-	userDao.insert(request.body, function (err, item) {
+	userDao._insert(request.body, {continueOnError: true, w: 1}, function (err, item) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -113,7 +113,7 @@ var insert = function(request, response) {
  */
 var update = function(request, response) {
 	delete(request.body._id);
-	userDao.update(request.user, request.body, function (err, result) {
+	userDao._update({_id: new db.BSON.ObjectID(request.user)}, request.body, {}, function (err, result) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -130,7 +130,7 @@ var update = function(request, response) {
  * @name 	Remove the currently logged in user
  */
 var remove = function(request, response) {
-	userDao.remove(request.user, function (err, result) {
+	userDao._remove({_id: new db.BSON.ObjectID(request.user)}, {}, function (err, result) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
