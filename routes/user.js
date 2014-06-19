@@ -44,7 +44,7 @@ var login = function (request, response) {
 		password:	hash.digest('base64')
 	};
 	// Search for user to log in
-	userDao.findOne(credentials, function (err, item) {
+	userDao._findOne(credentials, function (err, item) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -73,7 +73,7 @@ var login = function (request, response) {
  * @name	Get a user
  */
 var find = function(request, response) {
-	userDao.findById(request.user, function (err, item) {
+	userDao._findOne({user: request.user}, function (err, item) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {

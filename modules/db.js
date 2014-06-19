@@ -270,6 +270,66 @@ function Dao(collectionName, database) {
 
 
 /**
+ * Raw method: Find one item in collection
+ *
+ * @param query the mongoDB selector object
+ * @param callback a callback containing an error or null and the found object
+ */
+Dao.prototype._findOne = function (query, callback) {
+	// Get connection
+	var connection = _getConnection(this.database);
+	if (!connection) {
+		if (callback) callback(new Error('[DB] Unable to get connection to "' + this.database + '" to find a document'));
+		return;
+	}
+	// Define locally the collectionName to use it in the nested functions
+	var collectionName = this.collectionName;
+	logger.info('[DB] Find one item from ' + this.collectionName + ' matching ' + JSON.stringify(query));
+	connection.collection(this.collectionName, function (err, collection) {
+		collection.findOne(query, function (err, result) {
+			if (err) {
+				var message = '[DB] Error while searching one item in ' + collectionName + ' matching ' + JSON.stringify(query) + ': ' + err.message;
+				logger.warn(message);
+				if (callback) callback(new Error(message), null);
+			} else {
+				logger.info('[DB] Item found in ' + collectionName + ': ' + JSON.stringify(result));
+				if (callback) callback(null, result);
+			}
+		});
+	});
+};
+
+/**
+ * Raw method: Find items in collection
+ *
+ * @param query the mongoDB selector object
+ * @param callback a callback containing an error or null and the found objects
+ */
+Dao.prototype._find = function (query, callback) {
+	// Get connection
+	var connection = _getConnection(this.database);
+	if (!connection) {
+		if (callback) callback(new Error('[DB] Unable to get connection to "' + this.database + '" to find documents'));
+		return;
+	}
+	// Define locally the collectionName to use it in the nested functions
+	var collectionName = this.collectionName;
+	logger.info('[DB] Find all items from ' + this.collectionName + ' matching ' + JSON.stringify(query));
+	connection.collection(this.collectionName, function (err, collection) {
+		collection.find(query).toArray(function (err, result) {
+			if (err) {
+				var message = '[DB] Error while searching multiple items in ' + collectionName + ' matching ' + JSON.stringify(query) + ': ' + err.message;
+				logger.warn(message);
+				if (callback) callback(new Error(message), null);
+			} else {
+				logger.info('[DB] Item found in ' + collectionName + ': ' + JSON.stringify(result));
+				if (callback) callback(null, result);
+			}
+		});
+	});
+};
+
+/**
  * Raw method: Update items in collection
  *
  * @param selector the mongoDB selector object
@@ -366,95 +426,84 @@ Dao.prototype._remove = function (selector, options, callback) {
 /**
  * Convenient method: Find one item in collection
  *
+ * @param user the string id of the user owning the object to get
  * @param query the mongoDB selector object
  * @param callback a callback containing an error or null and the found object
  */
-Dao.prototype.findOne = function (query, callback) {
-	// Get connection
-	var connection = _getConnection(this.database);
-	if (!connection) {
-		if (callback) callback(new Error('[DB] Unable to get connection to "' + this.database + '" to find a document'));
+Dao.prototype.findOne = function (user, query, callback) {
+	// Add user to query
+	try {
+		user = new BSON.ObjectID(user);
+	} catch (err) {
+		if (callback) callback();
 		return;
 	}
-	// Define locally the collectionName to use it in the nested functions
-	var collectionName = this.collectionName;
-	logger.info('[DB] Find one item from ' + this.collectionName + ' matching ' + JSON.stringify(query));
-	connection.collection(this.collectionName, function (err, collection) {
-		collection.findOne(query, function (err, result) {
-			if (err) {
-				var message = '[DB] Error while searching one item in ' + collectionName + ' matching ' + JSON.stringify(query) + ': ' + err.message;
-				logger.warn(message);
-				if (callback) callback(new Error(message), null);
-			} else {
-				logger.info('[DB] Item found in ' + collectionName + ': ' + JSON.stringify(result));
-				if (callback) callback(null, result);
-			}
-		});
-	});
+	query._user = user;
+	this._findOne(query, callback);
 };
 
 /**
  * Convenient method: Find one item in collection by id
  *
+ * @param user the string id of the user owning the object to get
  * @param id the string id of the object to search in collection
  * @param callback a callback containing an error or null and the found object
  */
-Dao.prototype.findById = function (id, callback) {
+Dao.prototype.findById = function (id, user, callback) {
 	try {
 		id = new BSON.ObjectID(id);
+		user = new BSON.ObjectID(user);
 	} catch (err) {
 		if (callback) callback();
 		return;
 	}
-	this.findOne({_id: id}, callback);
+	this._findOne(user, {_id: id, _user: user}, callback);
 };
 
 /**
  * Convenient method: Find multiple items in collection
  *
+ * @param user the string id of the user owning the objects to get
  * @param query the mongoDB selector object
  * @param callback a callback containing an error or null and the found objects
  */
-Dao.prototype.find = function (query, callback) {
-	// Get connection
-	var connection = _getConnection(this.database);
-	if (!connection) {
-		if (callback) callback(new Error('[DB] Unable to get connection to "' + this.database + '" to find documents'));
+Dao.prototype.find = function (user, query, callback) {
+	// Add user to query
+	try {
+		user = new BSON.ObjectID(user);
+	} catch (err) {
+		if (callback) callback();
 		return;
 	}
-	// Define locally the collectionName to use it in the nested functions
-	var collectionName = this.collectionName;
-	logger.info('[DB] Find all items from ' + this.collectionName + ' matching ' + JSON.stringify(query));
-	connection.collection(this.collectionName, function (err, collection) {
-		collection.find(query).toArray(function (err, result) {
-			if (err) {
-				var message = '[DB] Error while searching multiple items in ' + collectionName + ' matching ' + JSON.stringify(query) + ': ' + err.message;
-				logger.warn(message);
-				if (callback) callback(new Error(message), null);
-			} else {
-				logger.info('[DB] Item found in ' + collectionName + ': ' + JSON.stringify(result));
-				if (callback) callback(null, result);
-			}
-		});
-	});
+	query._user = user;
+	this._find({_user: user}, callback);
 };
 
 /**
  * Convenient method: Find all items in collection
  *
+ * @param user the string id of the user owning the objects to get
  * @param callback a callback containing an error or null and the found objects
  */
-Dao.prototype.findAll = function (callback) {
-	this.find({}, callback);
+Dao.prototype.findAll = function (user, callback) {
+	this.find(user, {}, callback);
 };
 
 /**
  * Convenient method: Insert items in collection
  *
+ * @param user the string id of the user owning the object to insert
  * @param items the mongoDB data object (array or single object)
  * @param callback a callback containing null or an array of the inserted records
  */
-Dao.prototype.insert = function (item, callback) {
+Dao.prototype.insert = function (user, item, callback) {
+	try {
+		user = new BSON.ObjectID(user);
+	} catch (err) {
+		if (callback) callback(null, 0);
+		return;
+	}
+	item._user = user;
 	this._insert(item, {continueOnError: true, w: 1}, callback);
 };
 
@@ -462,51 +511,57 @@ Dao.prototype.insert = function (item, callback) {
  * Convenient method: Update items in collection
  *
  * @param id the string id of the object to update in collection
+ * @param user the string id of the user owning the object to update
  * @param item the mongoDB data object
  * @param callback a callback containing an error or null and the number of updated records
  */
-Dao.prototype.update = function (id, item, callback) {
+Dao.prototype.update = function (id, user, item, callback) {
 	try {
 		id = new BSON.ObjectID(id);
+		user = new BSON.ObjectID(user);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
 	}
-	item = {$set: item}
-	this._update({'_id': id}, item, {}, callback);
+	item = {$set: item};
+	this._update({_id: id, _user: user}, item, {}, callback);
 };
 
 /**
  * Convenient method: Replace items in collection
  *
  * @param id the string id of the object to replace in collection
+ * @param user the string id of the user owning the object to replace
  * @param item the mongoDB data object
  * @param callback a callback containing an error or null and the number of replaced records
  */
-Dao.prototype.replace = function (id, item, callback) {
+Dao.prototype.replace = function (id, user, item, callback) {
 	try {
 		id = new BSON.ObjectID(id);
+		user = new BSON.ObjectID(user);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
 	}
-	this._update({'_id': id}, item, {}, callback);
+	this._update({_id: id, _user: user}, item, {}, callback);
 };
 
 /**
  * Convenient method: Remove one item in collection
  *
  * @param id the string id of the object to remove of the collection
+ * @param user the string id of the user owning the object to remove
  * @param callback a callback containing an error or null and the number of removed records
  */
-Dao.prototype.remove = function (id, callback) {
+Dao.prototype.remove = function (id, user, callback) {
 	try {
 		id = new BSON.ObjectID(id);
+		user = new BSON.ObjectID(user);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
 	}
-	this._remove({'_id': id}, {}, callback);
+	this._remove({_id: id, _user: user}, {}, callback);
 };
 
 /**

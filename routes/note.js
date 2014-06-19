@@ -34,7 +34,7 @@ var noteDao = new db.Dao('note');
  * @param 	id {String} required The id of the note to retrieve
  */
 var findById = function (request, response) {
-	noteDao.findById(request.params.id, function (err, item) {
+	noteDao.findById(request.params.id, request.user, function (err, item) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -51,7 +51,7 @@ var findById = function (request, response) {
  * @name 	Get all the notes
  */
 var findAll = function (request, response) {
-	noteDao.findAll(function (err, items) {
+	noteDao.findAll(request.user, function (err, items) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -68,7 +68,7 @@ var findAll = function (request, response) {
  * TODO param body
  */
 var insert = function (request, response) {
-	noteDao.insert(request.body, function (err, item) {
+	noteDao.insert(request.user, request.body, function (err, item) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -87,7 +87,8 @@ var insert = function (request, response) {
  */
 var update = function (request, response) {
 	delete(request.body._id);
-	noteDao.update(request.params.id, request.body, function (err, result) {
+	delete(request.body._user);
+	noteDao.update(request.params.id, request.user, request.body, function (err, result) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -105,7 +106,7 @@ var update = function (request, response) {
  * @param 	id {String} required The id of the note to remove
  */
 var remove = function (request, response) {
-	noteDao.remove(request.params.id, function (err, result) {
+	noteDao.remove(request.params.id, request.user, function (err, result) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
