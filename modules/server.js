@@ -26,6 +26,7 @@
 // Built-in
 var express = require('express');
 var bodyParser = require('body-parser');
+var jwt = require('jwt-simple');
 // Custom
 var logger = require('./logger');
 var config = require('./config');
@@ -72,9 +73,37 @@ var _configureServer = function () {
 };
 
 /**
+ * Authentication checker middelware
+ * If the request has a valid token, set the user id and continue, else,
+ * return a 401 code with a message
+ */
+var _jwtauth = function (request, response, next) {
+	var token = request.headers['api-token'];
+	if (token) {
+		try {
+			var decoded = jwt.decode(token, app.get('jwtTokenSecret'));
+			if (decoded.exp <= new Date().getTime()) {
+				response.end('Access token has expired', 401);
+			} else {
+				request.user = decoded.iss;
+				next();
+			}
+		} catch (err) {
+			response.end('Unable to parse token', 401);
+		}
+	} else {
+		response.end('A token is mandatory', 401);
+	}
+};
+
+/**
  * Configure application routes
  */
 var _configureRoutes = function () {
+	// Add authentication middelware for some routes
+	app.all('/note*', [_jwtauth]);
+	app.all('/user*', [_jwtauth]);
+
 	// Authentication
 	app.post('/login', userRoutes.login);
 

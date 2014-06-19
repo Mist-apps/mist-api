@@ -73,8 +73,7 @@ var login = function (request, response) {
  * @name	Get a user
  */
 var find = function(request, response) {
-	var id = "5399751a245cb05f59086dc5";
-	userDao.findById(id, function (err, item) {
+	userDao.findById(request.user, function (err, item) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
@@ -106,38 +105,36 @@ var insert = function(request, response) {
 };
 
 /**
- * Update the user with the given id.
+ * Update the currently logged in user
  *
  * @method 	update
- * @name 	Update a user
- * @param 	id {String} required The id of the user to update
+ * @name 	Update the currently logged in user
  * TODO param body
  */
 var update = function(request, response) {
 	delete(request.body._id);
-	userDao.update(request.params.id, request.body, function (err, result) {
+	userDao.update(request.user, request.body, function (err, result) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
-			if (result === 0) { response.send(404, {error: 'Unable to find user with id ' + request.params.id}); }
+			if (result === 0) { response.send(404, {error: 'Unable to find user'}); }
 			else { response.send(200, {updated: result}); }
 		}
 	});
 };
 
 /**
- * Remove the user with the given id.
+ * Remove the currently logged in user
  *
  * @method 	remove
- * @name 	Remove a user
- * @param 	id {String} required The id of the user to remove
+ * @name 	Remove the currently logged in user
  */
 var remove = function(request, response) {
-	userDao.remove(request.params.id, function (err, result) {
+	userDao.remove(request.user, function (err, result) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
-			if (result === 0) { response.send(404, {error: 'Unable to find user with id ' + request.params.id}); }
+			if (result === 0) { response.send(404, {error: 'Unable to find user'}); }
 			else { response.send(200, {removed: result}); }
 		}
 	});
