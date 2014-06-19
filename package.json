@@ -8,6 +8,7 @@
 		"body-parser": "*",
 		"mongodb": "*",
 		"async": "*",
-		"winston": "*"
+		"winston": "*",
+		"jwt-simple": "*"
 	}
 }

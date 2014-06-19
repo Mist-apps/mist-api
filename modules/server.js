@@ -25,7 +25,7 @@
 
 // Built-in
 var express = require('express');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 // Custom
 var logger = require('./logger');
 var config = require('./config');
@@ -33,19 +33,22 @@ var noteRoutes = require('../routes/note.js');
 var userRoutes = require('../routes/user.js');
 
 
+
 /**
  * Variables
  */
 
 // Server
-var server = express();
+var app = express();
+var server;
 // Host/port
 var host = config.server.host;
 var port = config.server.port;
 
 
+
 /**
- * Configure server:
+ * Configure application:
  * 		- use logger
  *		- allow cross-domain
  */
@@ -62,27 +65,30 @@ var _configureServer = function () {
 			next();
 		}
 	};
-	server.use(allowCrossDomain);
-	server.use(bodyParser());
+	app.use(allowCrossDomain);
+	app.use(bodyParser());
+
+	app.set('jwtTokenSecret', 'L[<;fPmWVt;4TN+ufbHX#Z6<{N/@fU+X(nV/JF&>');
 };
 
 /**
- * Configure server routes
+ * Configure application routes
  */
 var _configureRoutes = function () {
+	// Authentication
+	app.post('/login', userRoutes.login);
+
 	// Note
-	server.get('/note', noteRoutes.findAll);
-	server.get('/note/:id', noteRoutes.findById);
-	server.put('/note/:id', noteRoutes.update);
-	server.post('/note', noteRoutes.insert);
-	server.delete('/note/:id', noteRoutes.remove);
+	app.get('/note', noteRoutes.findAll);
+	app.get('/note/:id', noteRoutes.findById);
+	app.put('/note/:id', noteRoutes.update);
+	app.post('/note', noteRoutes.insert);
+	app.delete('/note/:id', noteRoutes.remove);
 
 	// User
-	server.get('/user', userRoutes.findAll);
-	server.get('/user/:id', userRoutes.findById);
-	server.put('/user/:id', userRoutes.update);
-	server.post('/user', userRoutes.insert);
-	server.delete('/user/:id', userRoutes.remove);
+	app.get('/user', userRoutes.find);
+	app.put('/user/:id', userRoutes.update);
+	app.delete('/user/:id', userRoutes.remove);
 };
 
 /**
@@ -93,7 +99,7 @@ var _configureRoutes = function () {
 var start = function (callback) {
 	_configureServer();
 	_configureRoutes();
-	server = server.listen(port, host, function () {
+	server = app.listen(port, host, function () {
 		logger.info('[Server] Web server listening on ' + host + ':' + port);
 		if (callback) callback();
 	});
@@ -105,7 +111,7 @@ var start = function (callback) {
  * @param callback function called when the web server is no more listening
  */
 var stop = function (callback) {
-	if (typeof server.close == 'function') {
+	if (server && typeof server.close == 'function') {
 		server.close(function () {
 			logger.info('[Server] Web server no more listening on ' + host + ':' + port);
 			if (callback) callback();
