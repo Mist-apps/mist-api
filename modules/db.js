@@ -330,38 +330,6 @@ Dao.prototype._find = function (query, callback) {
 };
 
 /**
- * Raw method: Update items in collection
- *
- * @param selector the mongoDB selector object
- * @param item the mongoDB data object
- * @param options the mongoDB options object
- * @param callback a callback containing an error or null and the number of updated records
- */
-Dao.prototype._update = function (selector, item, options, callback) {
-	// Get connection
-	var connection = _getConnection(this.database);
-	if (!connection) {
-		if (callback) callback(new Error('[DB] Unable to get connection to "' + this.database + '" to update documents'));
-		return;
-	}
-	// Define locally the collectionName to use it in the nested functions
-	var collectionName = this.collectionName;
-	logger.info('[DB] Update/Replace item from ' + this.collectionName + ' set ' + JSON.stringify(item) + ' matching ' + JSON.stringify(selector));
-	connection.collection(this.collectionName, function (err, collection) {
-		collection.update(selector, item, options, function (err, result) {
-			if (err) {
-				var message = '[DB] Error while updating items in ' + collectionName + ': ' + err.message;
-				logger.warn(message);
-				if (callback) callback(new Error(message), null);
-			} else {
-				logger.info('[DB] ' + result + ' items updated in ' + collectionName);
-				if (callback) callback(null, result);
-			}
-		});
-	});
-};
-
-/**
  * Raw method: Insert items in collection
  *
  * @param items the mongoDB data object (array or single object)
@@ -393,11 +361,44 @@ Dao.prototype._insert = function (items, options, callback) {
 };
 
 /**
- * Raw method: Remove items in collection
+ * Raw method: Update an item in collection
+ *
+ * @param selector the mongoDB selector object
+ * @param item the mongoDB data object
+ * @param options the mongoDB options object
+ * @param callback a callback containing an error or null and the updated record
+ */
+Dao.prototype._update = function (selector, item, options, callback) {
+	// Get connection
+	var connection = _getConnection(this.database);
+	if (!connection) {
+		if (callback) callback(new Error('[DB] Unable to get connection to "' + this.database + '" to update documents'));
+		return;
+	}
+	// Define locally the collectionName to use it in the nested functions
+	var collectionName = this.collectionName;
+	logger.info('[DB] Update/Replace item from ' + this.collectionName + ' set ' + JSON.stringify(item) + ' matching ' + JSON.stringify(selector));
+	connection.collection(this.collectionName, function (err, collection) {
+		options.new = true;
+		collection.findAndModify(selector, [], item, options, function (err, result) {
+			if (err) {
+				var message = '[DB] Error while updating item in ' + collectionName + ': ' + err.message;
+				logger.warn(message);
+				if (callback) callback(new Error(message), null);
+			} else {
+				logger.info('[DB] Item updated in ' + collectionName + ': ' + JSON.stringify(result));
+				if (callback) callback(null, result);
+			}
+		});
+	});
+};
+
+/**
+ * Raw method: Remove an item in collection
  *
  * @param item the mongoDB data object
  * @param options the mongoDB options object
- * @param callback a callback containing an error or null and the number of removed objects
+ * @param callback a callback containing an error or null and the removed object
  */
 Dao.prototype._remove = function (selector, options, callback) {
 	// Get connection
@@ -408,15 +409,15 @@ Dao.prototype._remove = function (selector, options, callback) {
 	}
 	// Define locally the collectionName to use it in the nested functions
 	var collectionName = this.collectionName;
-	logger.info('[DB] Delete item(s) from ' + this.collectionName + ' matching ' + JSON.stringify(selector));
+	logger.info('[DB] Delete item from ' + this.collectionName + ' matching ' + JSON.stringify(selector));
 	connection.collection(this.collectionName, function (err, collection) {
-		collection.remove(selector, options, function (err, result) {
+		collection.findAndRemove(selector, [], options, function (err, result) {
 			if (err) {
-				var message = '[DB] Error while deleting items in ' + collectionName + ': ' + err.message;
+				var message = '[DB] Error while deleting item in ' + collectionName + ': ' + err.message;
 				logger.warn(message);
 				if (callback) callback(new Error(message), null);
 			} else {
-				logger.info('[DB] ' + result + ' items deleted in ' + collectionName);
+				logger.info('[DB] Item deleted in ' + collectionName + ': ' + JSON.stringify(result));
 				if (callback) callback(null, result);
 			}
 		});
@@ -457,7 +458,7 @@ Dao.prototype.findById = function (id, user, callback) {
 		if (callback) callback();
 		return;
 	}
-	this._findOne(user, {_id: id, _user: user}, callback);
+	this._findOne({_id: id, _user: user}, callback);
 };
 
 /**
@@ -492,6 +493,8 @@ Dao.prototype.findAll = function (user, callback) {
 /**
  * Convenient method: Insert items in collection
  *
+ * This method adds a revision number of 1 for further conflict detection.
+ *
  * @param user the string id of the user owning the object to insert
  * @param items the mongoDB data object (array or single object)
  * @param callback a callback containing null or an array of the inserted records
@@ -504,16 +507,21 @@ Dao.prototype.insert = function (user, item, callback) {
 		return;
 	}
 	item._user = user;
+	item._revision = 1;
 	this._insert(item, {continueOnError: true, w: 1}, callback);
 };
 
 /**
- * Convenient method: Update items in collection
+ * Convenient method: Update an item in collection
+ *
+ * This method updates also the revision number. If there is a conflict with the document
+ * to update, the method updates nothing and return no error, so it is to the caller to check
+ * if there is a conflict or not.
  *
  * @param id the string id of the object to update in collection
  * @param user the string id of the user owning the object to update
  * @param item the mongoDB data object
- * @param callback a callback containing an error or null and the number of updated records
+ * @param callback a callback containing an error or null and the updated record
  */
 Dao.prototype.update = function (id, user, item, callback) {
 	try {
@@ -523,35 +531,18 @@ Dao.prototype.update = function (id, user, item, callback) {
 		if (callback) callback(null, 0);
 		return;
 	}
-	item = {$set: item};
-	this._update({_id: id, _user: user}, item, {}, callback);
+	var revision = item._revision;
+	delete(item._revision);
+	item = {$set: item, $inc: {_revision: 1}};
+	this._update({_id: id, _user: user, _revision: revision}, item, {}, callback);
 };
 
 /**
- * Convenient method: Replace items in collection
- *
- * @param id the string id of the object to replace in collection
- * @param user the string id of the user owning the object to replace
- * @param item the mongoDB data object
- * @param callback a callback containing an error or null and the number of replaced records
- */
-Dao.prototype.replace = function (id, user, item, callback) {
-	try {
-		id = new BSON.ObjectID(id);
-		user = new BSON.ObjectID(user);
-	} catch (err) {
-		if (callback) callback(null, 0);
-		return;
-	}
-	this._update({_id: id, _user: user}, item, {}, callback);
-};
-
-/**
- * Convenient method: Remove one item in collection
+ * Convenient method: Remove an item in collection
  *
  * @param id the string id of the object to remove of the collection
  * @param user the string id of the user owning the object to remove
- * @param callback a callback containing an error or null and the number of removed records
+ * @param callback a callback containing an error or null and the removed record
  */
 Dao.prototype.remove = function (id, user, callback) {
 	try {
@@ -562,36 +553,6 @@ Dao.prototype.remove = function (id, user, callback) {
 		return;
 	}
 	this._remove({_id: id, _user: user}, {}, callback);
-};
-
-/**
- * Convenient method: Listen to new documents in collection
- *
- * @param callback a callback containing an error or null and the new inserted document
- */
-Dao.prototype.listen = function (callback) {
-	// Get connection
-	var connection = _getConnection(this.database);
-	if (!connection) {
-		if (callback) callback(new Error('[DB] Unable to get connection to "' + this.database + '" to listen to new documents'));
-		return;
-	}
-	logger.info('[DB] Listen for new documents from ' + this.collectionName);
-	connection.collection(this.collectionName, function (err, collection) {
-		var latest = collection.find({}).sort({ $natural: -1 }).limit(1);
-		latest.nextObject(function (err, doc) {
-			var query = {_id: { $gt: doc._id }};
-			var options = {tailable: true, awaitdata: true, numberOfRetries: -1};
-			var cursor = collection.find(query, options).sort({ $natural: 1 });
-			var next = function () {
-				cursor.nextObject(function (err, item) {
-				callback(err, item);
-				next();
-				});
-			};
-			next();
-		});
-	});
 };
 
 

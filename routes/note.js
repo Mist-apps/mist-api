@@ -79,6 +79,7 @@ var insert = function (request, response) {
 
 /**
  * Update the note with the given id.
+ * If a conflict occurs, return a 409 conflict
  *
  * @method 	update
  * @name 	Update a note
@@ -92,8 +93,23 @@ var update = function (request, response) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
-			if (result === 0) { response.send(404, {error: 'Unable to find note with id ' + request.params.id}); }
-			else { response.send(200, {updated: result}); }
+			// If no update, there is maybe a conflict, or item not found
+			if (!result) {
+				noteDao.findById(request.params.id, request.user, function (err, item) {
+					if (err) {
+						response.send(503, {error: 'Database error: ' + err.message});
+					} else {
+						// Item found but not updated just before because of conflict !
+						if (item) { response.send(409, item); }
+						// No item found, it was normal that the update not worked
+						else { response.send(404, {error: 'Unable to find note with id ' + request.params.id}); }
+					}
+				});
+			}
+			// If update done
+			else {
+				response.send(200, result);
+			}
 		}
 	});
 };
@@ -111,7 +127,7 @@ var remove = function (request, response) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
 			if (result === 0) { response.send(404, {error: 'Unable to find note with id ' + request.params.id}); }
-			else { response.send(200, {removed: result}); }
+			else { response.send(200, result); }
 		}
 	});
 };
