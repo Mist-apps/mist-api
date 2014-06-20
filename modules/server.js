@@ -116,8 +116,8 @@ var _configureRoutes = function () {
 
 	// User
 	app.get('/user', userRoutes.find);
-	app.put('/user/:id', userRoutes.update);
-	app.delete('/user/:id', userRoutes.remove);
+	app.put('/user', userRoutes.update);
+	app.delete('/user', userRoutes.remove);
 };
 
 /**
