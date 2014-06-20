@@ -113,12 +113,19 @@ var insert = function(request, response) {
  */
 var update = function(request, response) {
 	delete(request.body._id);
+	// Prepare password
+	if (request.body.password) {
+		var hash = crypto.createHash('sha512');
+		hash.update(request.body.password);
+		request.body.password = hash.digest('base64');
+	}
+	// Update user
 	userDao._update({_id: new db.BSON.ObjectID(request.user)}, request.body, {}, function (err, result) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
 			if (result === 0) { response.send(404, {error: 'Unable to find user'}); }
-			else { response.send(200, {updated: result}); }
+			else { response.send(200, result); }
 		}
 	});
 };
@@ -135,7 +142,7 @@ var remove = function(request, response) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
 			if (result === 0) { response.send(404, {error: 'Unable to find user'}); }
-			else { response.send(200, {removed: result}); }
+			else { response.send(200, result); }
 		}
 	});
 };
