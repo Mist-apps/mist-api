@@ -120,7 +120,7 @@ var update = function(request, response) {
 		request.body.password = hash.digest('base64');
 	}
 	// Update user
-	userDao._update({_id: new db.BSON.ObjectID(request.user)}, request.body, {}, function (err, result) {
+	userDao._update({_id: new db.BSON.ObjectID(request.user)}, {$set: request.body}, {}, function (err, result) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
