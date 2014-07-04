@@ -30,8 +30,9 @@ var jwt = require('jwt-simple');
 // Custom
 var logger = require('./logger');
 var config = require('./config');
-var noteRoutes = require('../routes/note.js');
 var userRoutes = require('../routes/user.js');
+var noteRoutes = require('../routes/note.js');
+var contactRoutes = require('../routes/contact.js');
 
 
 
@@ -101,11 +102,17 @@ var _jwtauth = function (request, response, next) {
  */
 var _configureRoutes = function () {
 	// Add authentication middelware for some routes
-	app.all('/note*', [_jwtauth]);
 	app.all('/user*', [_jwtauth]);
+	app.all('/note*', [_jwtauth]);
+	app.all('/contact*', [_jwtauth]);
 
 	// Authentication
 	app.post('/login', userRoutes.login);
+
+	// User
+	app.get('/user', userRoutes.find);
+	app.put('/user', userRoutes.update);
+	app.delete('/user', userRoutes.remove);
 
 	// Note
 	app.get('/note', noteRoutes.findAll);
@@ -114,10 +121,12 @@ var _configureRoutes = function () {
 	app.post('/note', noteRoutes.insert);
 	app.delete('/note/:id', noteRoutes.remove);
 
-	// User
-	app.get('/user', userRoutes.find);
-	app.put('/user', userRoutes.update);
-	app.delete('/user', userRoutes.remove);
+	// Contact
+	app.get('/contact', contactRoutes.findAll);
+	app.get('/contact/:id', contactRoutes.findById);
+	app.put('/contact/:id', contactRoutes.update);
+	app.post('/contact', contactRoutes.insert);
+	app.delete('/contact/:id', contactRoutes.remove);
 };
 
 /**
