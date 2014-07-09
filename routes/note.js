@@ -132,6 +132,25 @@ var remove = function (request, response) {
 	});
 };
 
+/**
+ * Export all the notes of the user in XML/JSON formats
+ *
+ * @method 	exportAll
+ * @name 	Export all the notes
+ */
+var exportAll = function (request, response) {
+	noteDao.findAll(request.user, function (err, items) {
+		if (err) {
+			response.send(503, {error: 'Database error: ' + err.message});
+		} else {
+			if (request.accepts('json')) {
+				response.send(200, items);
+			} else {
+				response.send(406, {error: 'Export only in JSON'});
+			}
+		}
+	});
+};
 
 
 /**
@@ -144,3 +163,4 @@ exports.findAll = findAll;
 exports.insert = insert;
 exports.update = update;
 exports.remove = remove;
+exports.exportAll = exportAll;

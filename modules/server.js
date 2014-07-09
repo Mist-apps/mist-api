@@ -109,6 +109,7 @@ var _configureRoutes = function () {
 
 	// Note
 	app.get('/note', noteRoutes.findAll);
+	app.get('/note/export', noteRoutes.exportAll);
 	app.get('/note/:id', noteRoutes.findById);
 	app.put('/note/:id', noteRoutes.update);
 	app.post('/note', noteRoutes.insert);
