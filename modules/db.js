@@ -499,16 +499,25 @@ Dao.prototype.findAll = function (user, callback) {
  * @param items the mongoDB data object (array or single object)
  * @param callback a callback containing null or an array of the inserted records
  */
-Dao.prototype.insert = function (user, item, callback) {
+Dao.prototype.insert = function (user, items, callback) {
 	try {
 		user = new BSON.ObjectID(user);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
 	}
-	item._user = user;
-	item._revision = 1;
-	this._insert(item, {continueOnError: true, w: 1}, callback);
+	// Add data
+	if (Array.isArray(items)) {
+		for (var i in items) {
+			items[i]._user = user;
+			items[i]._revision = 1;
+		}
+	} else {
+		items._user = user;
+		items._revision = 1;		
+	}
+	// Insert
+	this._insert(items, {continueOnError: true, w: 1}, callback);
 };
 
 /**

@@ -171,7 +171,13 @@ var exportAll = function (request, response) {
  */
 var importAll = function (request, response) {
 	if (request.is('json')) {
-		response.send(200, 'JSON OK');
+		noteDao.insert(request.user, request.body, function (err, items) {
+			if (err) {
+				response.send(503, {error: 'Database error: ' + err.message});
+			} else {
+				response.send(200, items);
+			}
+		});
 	} else if (request.is('xml')) {
 		response.send(200, 'XML OK');
 	} else {
