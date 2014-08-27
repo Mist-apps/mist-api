@@ -14,6 +14,7 @@
 // Custom
 var logger = require('../modules/logger');
 var db = require('../modules/db');
+var xml = require('../modules/xml-parser');
 
 
 
@@ -144,13 +145,18 @@ var exportAll = function (request, response) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
 			if (request.accepts('json')) {
+				response.set('Content-Type', 'application/json');
 				response.send(200, items);
+			} else if (request.accepts('xml')) {
+				response.set('Content-Type', 'application/xml');
+				response.send(200, xml.convert('notes', items));
 			} else {
 				response.send(406, {error: 'Export only in JSON'});
 			}
 		}
 	});
 };
+
 
 
 /**
