@@ -144,6 +144,15 @@ var exportAll = function (request, response) {
 		if (err) {
 			response.send(503, {error: 'Database error: ' + err.message});
 		} else {
+			// Clean data
+			for (var i in items) {
+				for (var key in items[i]) {
+					if (key.substr(0, 1) === '_') {
+						delete items[i][key];
+					}
+				}
+			}
+			// Send data
 			if (request.accepts('json')) {
 				response.set('Content-Type', 'application/json');
 				response.send(200, items);
@@ -151,10 +160,23 @@ var exportAll = function (request, response) {
 				response.set('Content-Type', 'application/xml');
 				response.send(200, xml.convert('notes', items));
 			} else {
-				response.send(406, {error: 'Export only in JSON'});
+				response.send(406, {error: 'Accepted response formats: JSON/XML'});
 			}
 		}
 	});
+};
+
+/**
+ * Import all the notes of the use in XML/JSON formats
+ */
+var importAll = function (request, response) {
+	if (request.is('json')) {
+		response.send(200, 'JSON OK');
+	} else if (request.is('xml')) {
+		response.send(200, 'XML OK');
+	} else {
+		response.send(415, {error: 'Accepted formats: JSON/XML'});
+	}
 };
 
 
@@ -170,3 +192,4 @@ exports.insert = insert;
 exports.update = update;
 exports.remove = remove;
 exports.exportAll = exportAll;
+exports.importAll = importAll;
