@@ -178,10 +178,8 @@ var importAll = function (request, response) {
 				response.send(200, items);
 			}
 		});
-	} else if (request.is('xml')) {
-		response.send(200, 'XML OK');
 	} else {
-		response.send(415, {error: 'Accepted formats: JSON/XML'});
+		response.send(415, {error: 'Accepted formats: JSON'});
 	}
 };
 
