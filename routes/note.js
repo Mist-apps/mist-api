@@ -175,7 +175,7 @@ var importAll = function (request, response) {
 			if (err) {
 				response.send(503, {error: 'Database error: ' + err.message});
 			} else {
-				response.send(200, items);
+				response.send(200, {message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
 			}
 		});
 	} else {
