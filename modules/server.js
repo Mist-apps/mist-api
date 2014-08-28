@@ -67,8 +67,26 @@ var _configureServer = function () {
 			next();
 		}
 	};
+
+	var rawBody = function (req, res, next) {
+		if (req._body) {
+			return next();
+		} else {
+			req._body = true;
+		}
+		var data = '';
+		req.on('data', function (chunk) {
+			data += chunk;
+		});
+		req.on('end', function () {
+			req.rawBody = data;
+			next();
+		});
+	}
+
 	app.use(allowCrossDomain);
 	app.use(bodyParser());
+	app.use(rawBody);
 
 	app.set('jwtTokenSecret', 'L[<;fPmWVt;4TN+ufbHX#Z6<{N/@fU+X(nV/JF&>');
 };

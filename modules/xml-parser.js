@@ -52,7 +52,42 @@ var _convertAny = function (name, any) {
 	}
 	xml += '</' + name + '>'
 	return xml;
-}
+};
+
+/**
+ * Parse the given XML string into a JSON object
+ */
+var parse = function (xml, callback) {
+	var xml2js = require('xml2js');
+	var parser = new xml2js.Parser({explicitArray: false});
+	parser.parseString(xml, function (err, json) {
+		_cleanJSON(json);
+		if (callback) {
+			callback(json);
+		}
+	});
+};
+
+/**
+ * Clean the JSON object parsed by XML2JS.
+ * Remove the single properties. For example:
+ * notes -> note -> [] becomes notes -> [].
+ */
+var _cleanJSON = function (json) {
+	for (var i in json) {
+		// If not an object, no clean needed
+		if (typeof json[i] !== 'object') {
+			continue;
+		}
+		// Clean
+		var keys = Object.keys(json[i]);
+		if (keys.length === 1 && Array.isArray(json[i][keys[0]])) {
+			json[i] = json[i][keys[0]];
+		}
+		// Clean recursively
+		_cleanJSON(json[i]);
+	}
+};
 
 
 
@@ -62,3 +97,4 @@ var _convertAny = function (name, any) {
 
 // Methods
 exports.convert = convert;
+exports.parse = parse;

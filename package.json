@@ -1,14 +1,15 @@
 {
-	"name": "mist-api",
-	"description": "Mist API server",
-	"version": "0.0.1",
-	"private": true,
-	"dependencies": {
-		"express": "*",
-		"body-parser": "*",
-		"mongodb": "*",
-		"async": "*",
-		"winston": "*",
-		"jwt-simple": "*"
-	}
+  "name": "mist-api",
+  "description": "Mist API server",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "*",
+    "body-parser": "*",
+    "mongodb": "*",
+    "async": "*",
+    "winston": "*",
+    "jwt-simple": "*",
+    "xml2js": "^0.4.4"
+  }
 }

@@ -178,6 +178,16 @@ var importAll = function (request, response) {
 				response.send(200, {message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
 			}
 		});
+	} else if (request.is('xml')) {
+		xml.parse(request.rawBody, function (json) {
+			noteDao.insert(request.user, json.notes, function (err, items) {
+				if (err) {
+					response.send(503, {error: 'Database error: ' + err.message});
+				} else {
+					response.send(200, {message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
+				}
+			});
+		});
 	} else {
 		response.send(415, {error: 'Accepted formats: JSON'});
 	}
