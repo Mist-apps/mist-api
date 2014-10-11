@@ -21,9 +21,7 @@
  *				- findAll()
  *				- insert()
  *				- update()
- *				- replace()
  *				- delete()
- *				- listen()
  *
  * Events : /
  *
@@ -514,7 +512,7 @@ Dao.prototype.insert = function (user, items, callback) {
 		}
 	} else {
 		items._user = user;
-		items._revision = 1;		
+		items._revision = 1;
 	}
 	// Insert
 	this._insert(items, {continueOnError: true, w: 1}, callback);
@@ -541,9 +539,12 @@ Dao.prototype.update = function (id, user, item, callback) {
 		return;
 	}
 	var revision = item._revision;
-	delete(item._revision);
-	item = {$set: item, $inc: {_revision: 1}};
-	this._update({_id: id, _user: user, _revision: revision}, item, {}, callback);
+	item._revision++
+	item._user = user;
+	this._update({_id: id, _user: user, _revision: revision}, item, {}, function (err, result) {
+		if (result) delete(result._user);
+		if (callback) callback(err, result);
+	});
 };
 
 /**
@@ -561,7 +562,10 @@ Dao.prototype.remove = function (id, user, callback) {
 		if (callback) callback(null, 0);
 		return;
 	}
-	this._remove({_id: id, _user: user}, {}, callback);
+	this._remove({_id: id, _user: user}, {}, function (err, result) {
+		if (result) delete(result._user);
+		if (callback) callback(err, result);
+	});
 };
 
 
