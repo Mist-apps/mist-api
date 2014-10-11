@@ -102,16 +102,16 @@ var _jwtauth = function (request, response, next) {
 		try {
 			var decoded = jwt.decode(token, app.get('jwtTokenSecret'));
 			if (decoded.exp <= new Date().getTime()) {
-				response.end('Access token has expired', 401);
+				response.send('Access token has expired', 401);
 			} else {
 				request.user = decoded.iss;
 				next();
 			}
 		} catch (err) {
-			response.end('Unable to parse token', 401);
+			response.send('Unable to parse token', 401);
 		}
 	} else {
-		response.end('A token is mandatory', 401);
+		response.send('A token is mandatory', 401);
 	}
 };
 
