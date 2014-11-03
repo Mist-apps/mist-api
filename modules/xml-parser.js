@@ -19,7 +19,7 @@
 
 /**
  * Convert a JSON object into an XML string
- * 
+ *
  * @param name The name of the root element
  * @param json The JSON object to convert
  * @return the XML string
@@ -32,7 +32,7 @@ var convert = function (root, json) {
 
 /**
  * Convert any variable into an XML string (object, array, string)
- * 
+ *
  * @param name The name of the element
  * @param any The element to convert
  * @return the XML string
@@ -48,7 +48,7 @@ var _convertAny = function (name, any) {
 			xml += _convertAny(key, any[key]);
 		}
 	} else {
-		xml += any;
+		xml += '<![CDATA[' + any + ']]>';
 	}
 	xml += '</' + name + '>'
 	return xml;
