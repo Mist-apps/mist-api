@@ -9,7 +9,7 @@
  * =============================
  *
  * Attributes :
- *		- BSON
+ *		- ObjectID
  *
  * Methods :
  *		- open(host, port, database(s), defaultDb, [callback])
@@ -48,8 +48,8 @@ var logger = require('./logger');
 
 // DB Connections
 var connections = {};
-// BSON
-var BSON = mongo.BSONPure;
+// ObjectID
+var ObjectID = mongo.ObjectID;
 // Default database used when getting a Dao without specifying the database
 var defaultDatabase;
 
@@ -351,8 +351,8 @@ Dao.prototype._insert = function (items, options, callback) {
 				logger.warn(message);
 				if (callback) callback(new Error(message), null);
 			} else {
-				logger.info('[DB] ' + result.length + ' items inserted in ' + collectionName);
-				if (callback) callback(null, result);
+				logger.info('[DB] ' + result.ops.length + ' items inserted in ' + collectionName);
+				if (callback) callback(null, result.ops);
 			}
 		});
 	});
@@ -384,8 +384,8 @@ Dao.prototype._update = function (selector, item, options, callback) {
 				logger.warn(message);
 				if (callback) callback(new Error(message), null);
 			} else {
-				logger.info('[DB] Item updated in ' + collectionName + ': ' + JSON.stringify(result));
-				if (callback) callback(null, result);
+				logger.info('[DB] Item updated in ' + collectionName + ': ' + JSON.stringify(result.value));
+				if (callback) callback(null, result.value);
 			}
 		});
 	});
@@ -415,8 +415,8 @@ Dao.prototype._remove = function (selector, options, callback) {
 				logger.warn(message);
 				if (callback) callback(new Error(message), null);
 			} else {
-				logger.info('[DB] Item deleted in ' + collectionName + ': ' + JSON.stringify(result));
-				if (callback) callback(null, result);
+				logger.info('[DB] Item deleted in ' + collectionName + ': ' + JSON.stringify(result.value));
+				if (callback) callback(null, result.value);
 			}
 		});
 	});
@@ -432,7 +432,7 @@ Dao.prototype._remove = function (selector, options, callback) {
 Dao.prototype.findOne = function (user, query, callback) {
 	// Add user to query
 	try {
-		user = new BSON.ObjectID(user);
+		user = new ObjectID(user);
 	} catch (err) {
 		if (callback) callback();
 		return;
@@ -450,8 +450,8 @@ Dao.prototype.findOne = function (user, query, callback) {
  */
 Dao.prototype.findById = function (id, user, callback) {
 	try {
-		id = new BSON.ObjectID(id);
-		user = new BSON.ObjectID(user);
+		id = new ObjectID(id);
+		user = new ObjectID(user);
 	} catch (err) {
 		if (callback) callback();
 		return;
@@ -469,7 +469,7 @@ Dao.prototype.findById = function (id, user, callback) {
 Dao.prototype.find = function (user, query, callback) {
 	// Add user to query
 	try {
-		user = new BSON.ObjectID(user);
+		user = new ObjectID(user);
 	} catch (err) {
 		if (callback) callback();
 		return;
@@ -499,7 +499,7 @@ Dao.prototype.findAll = function (user, callback) {
  */
 Dao.prototype.insert = function (user, items, callback) {
 	try {
-		user = new BSON.ObjectID(user);
+		user = new ObjectID(user);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
@@ -532,8 +532,8 @@ Dao.prototype.insert = function (user, items, callback) {
  */
 Dao.prototype.update = function (id, user, item, callback) {
 	try {
-		id = new BSON.ObjectID(id);
-		user = new BSON.ObjectID(user);
+		id = new ObjectID(id);
+		user = new ObjectID(user);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
@@ -556,8 +556,8 @@ Dao.prototype.update = function (id, user, item, callback) {
  */
 Dao.prototype.remove = function (id, user, callback) {
 	try {
-		id = new BSON.ObjectID(id);
-		user = new BSON.ObjectID(user);
+		id = new ObjectID(id);
+		user = new ObjectID(user);
 	} catch (err) {
 		if (callback) callback(null, 0);
 		return;
@@ -575,7 +575,7 @@ Dao.prototype.remove = function (id, user, callback) {
  */
 
 // Variables
-exports.BSON = BSON;
+exports.ObjectID = ObjectID;
 // Methods
 exports.open = open;
 exports.close = close;

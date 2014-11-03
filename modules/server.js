@@ -62,7 +62,7 @@ var _configureServer = function () {
 		res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, Api-Token');
 		// Intercept OPTIONS method
 		if ('OPTIONS' == req.method) {
-			res.send(200);
+			res.sendStatus(200);
 		} else {
 			next();
 		}
@@ -102,16 +102,16 @@ var _jwtauth = function (request, response, next) {
 		try {
 			var decoded = jwt.decode(token, app.get('jwtTokenSecret'));
 			if (decoded.exp <= new Date().getTime()) {
-				response.send('Access token has expired', 401);
+				response.status(401).send('Access token has expired');
 			} else {
 				request.user = decoded.iss;
 				next();
 			}
 		} catch (err) {
-			response.send('Unable to parse token', 401);
+			response.status(401).send('Unable to parse token');
 		}
 	} else {
-		response.send('A token is mandatory', 401);
+		response.status(401).send('A token is mandatory');
 	}
 };
 

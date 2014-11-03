@@ -46,7 +46,7 @@ var login = function (request, response) {
 	// Search for user to log in
 	userDao._findOne(credentials, function (err, item) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
 			if (item) {
 				// remove password from item
@@ -58,9 +58,9 @@ var login = function (request, response) {
 					exp: expires
 				}, request.app.get('jwtTokenSecret'));
 				// Send the token and the user
-				response.send(200, {token: token, expires: expires, user: item});
+				response.status(200).send({token: token, expires: expires, user: item});
 			} else {
-				response.send(401, {error: 'Invalid login or password'});
+				response.status(401).send({error: 'Invalid login or password'});
 			}
 		}
 	});
@@ -73,15 +73,15 @@ var login = function (request, response) {
  * @name	Get a user
  */
 var find = function(request, response) {
-	userDao._findOne({_id: new db.BSON.ObjectID(request.user)}, function (err, item) {
+	userDao._findOne({_id: new db.ObjectID(request.user)}, function (err, item) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
 			if (item) {
 				delete(item.password);
-				response.send(200, item);
+				response.status(200).send(item);
 			} else {
-				response.send(404, {error: 'Unable to find user'});
+				response.status(404).send({error: 'Unable to find user'});
 			}
 		}
 	});
@@ -97,9 +97,9 @@ var find = function(request, response) {
 var insert = function(request, response) {
 	userDao._insert(request.body, {continueOnError: true, w: 1}, function (err, item) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			response.send(200, item[0]);
+			response.status(200).send(item[0]);
 		}
 	});
 };
@@ -120,12 +120,12 @@ var update = function(request, response) {
 		request.body.password = hash.digest('base64');
 	}
 	// Update user
-	userDao._update({_id: new db.BSON.ObjectID(request.user)}, {$set: request.body}, {}, function (err, result) {
+	userDao._update({_id: new db.ObjectID(request.user)}, {$set: request.body}, {}, function (err, result) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			if (result === 0) { response.send(404, {error: 'Unable to find user'}); }
-			else { response.send(200, result); }
+			if (result === 0) { response.status(404).send({error: 'Unable to find user'}); }
+			else { response.status(200).send(result); }
 		}
 	});
 };
@@ -137,12 +137,12 @@ var update = function(request, response) {
  * @name 	Remove the currently logged in user
  */
 var remove = function(request, response) {
-	userDao._remove({_id: new db.BSON.ObjectID(request.user)}, {}, function (err, result) {
+	userDao._remove({_id: new db.ObjectID(request.user)}, {}, function (err, result) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			if (result === 0) { response.send(404, {error: 'Unable to find user'}); }
-			else { response.send(200, result); }
+			if (result === 0) { response.status(404).send({error: 'Unable to find user'}); }
+			else { response.status(200).send(result); }
 		}
 	});
 };

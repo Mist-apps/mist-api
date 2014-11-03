@@ -36,10 +36,10 @@ var contactDao = new db.Dao('contact');
 var findById = function (request, response) {
 	contactDao.findById(request.params.id, request.user, function (err, item) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			if (item) { response.send(200, item); }
-			else { response.send(404, {error: 'Unable to find contact with id ' + request.params.id}); }
+			if (item) { response.status(200).send(item); }
+			else { response.status(404).send({error: 'Unable to find contact with id ' + request.params.id}); }
 		}
 	});
 };
@@ -53,9 +53,9 @@ var findById = function (request, response) {
 var findAll = function (request, response) {
 	contactDao.findAll(request.user, function (err, items) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			response.send(200, items);
+			response.status(200).send(items);
 		}
 	});
 };
@@ -70,9 +70,9 @@ var findAll = function (request, response) {
 var insert = function (request, response) {
 	contactDao.insert(request.user, request.body, function (err, item) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			response.send(200, item[0]);
+			response.status(200).send(item[0]);
 		}
 	});
 };
@@ -91,24 +91,24 @@ var update = function (request, response) {
 	delete(request.body._user);
 	contactDao.update(request.params.id, request.user, request.body, function (err, result) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
 			// If no update, there is maybe a conflict, or item not found
 			if (!result) {
 				contactDao.findById(request.params.id, request.user, function (err, item) {
 					if (err) {
-						response.send(503, {error: 'Database error: ' + err.message});
+						response.status(503).send({error: 'Database error: ' + err.message});
 					} else {
 						// Item found but not updated just before because of conflict !
-						if (item) { response.send(409, item); }
+						if (item) { response.status(409).send(item); }
 						// No item found, it was normal that the update not worked
-						else { response.send(404, {error: 'Unable to find contact with id ' + request.params.id}); }
+						else { response.status(404).send({error: 'Unable to find contact with id ' + request.params.id}); }
 					}
 				});
 			}
 			// If update done
 			else {
-				response.send(200, result);
+				response.status(200).send(result);
 			}
 		}
 	});
@@ -124,10 +124,10 @@ var update = function (request, response) {
 var remove = function (request, response) {
 	contactDao.remove(request.params.id, request.user, function (err, result) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			if (result === 0) { response.send(404, {error: 'Unable to find contact with id ' + request.params.id}); }
-			else { response.send(200, result); }
+			if (result === 0) { response.status(404).send({error: 'Unable to find contact with id ' + request.params.id}); }
+			else { response.status(200).send(result); }
 		}
 	});
 };

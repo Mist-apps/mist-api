@@ -37,10 +37,10 @@ var noteDao = new db.Dao('note');
 var findById = function (request, response) {
 	noteDao.findById(request.params.id, request.user, function (err, item) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			if (item) { response.send(200, item); }
-			else { response.send(404, {error: 'Unable to find note with id ' + request.params.id}); }
+			if (item) { response.status(200).send(item); }
+			else { response.status(404).send({error: 'Unable to find note with id ' + request.params.id}); }
 		}
 	});
 };
@@ -54,9 +54,9 @@ var findById = function (request, response) {
 var findAll = function (request, response) {
 	noteDao.findAll(request.user, function (err, items) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			response.send(200, items);
+			response.status(200).send(items);
 		}
 	});
 };
@@ -71,9 +71,9 @@ var findAll = function (request, response) {
 var insert = function (request, response) {
 	noteDao.insert(request.user, request.body, function (err, item) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			response.send(200, item[0]);
+			response.status(200).send(item[0]);
 		}
 	});
 };
@@ -92,24 +92,24 @@ var update = function (request, response) {
 	delete(request.body._user);
 	noteDao.update(request.params.id, request.user, request.body, function (err, result) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
 			// If no update, there is maybe a conflict, or item not found
 			if (!result) {
 				noteDao.findById(request.params.id, request.user, function (err, item) {
 					if (err) {
-						response.send(503, {error: 'Database error: ' + err.message});
+						response.status(503).send({error: 'Database error: ' + err.message});
 					} else {
 						// Item found but not updated just before because of conflict !
-						if (item) { response.send(409, item); }
+						if (item) { response.status(409).send(item); }
 						// No item found, it was normal that the update not worked
-						else { response.send(404, {error: 'Unable to find note with id ' + request.params.id}); }
+						else { response.status(404).send({error: 'Unable to find note with id ' + request.params.id}); }
 					}
 				});
 			}
 			// If update done
 			else {
-				response.send(200, result);
+				response.status(200).send(result);
 			}
 		}
 	});
@@ -125,10 +125,10 @@ var update = function (request, response) {
 var remove = function (request, response) {
 	noteDao.remove(request.params.id, request.user, function (err, result) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			if (result === 0) { response.send(404, {error: 'Unable to find note with id ' + request.params.id}); }
-			else { response.send(200, result); }
+			if (result === 0) { response.status(404).send({error: 'Unable to find note with id ' + request.params.id}); }
+			else { response.status(200).send(result); }
 		}
 	});
 };
@@ -142,7 +142,7 @@ var remove = function (request, response) {
 var exportAll = function (request, response) {
 	noteDao.findAll(request.user, function (err, items) {
 		if (err) {
-			response.send(503, {error: 'Database error: ' + err.message});
+			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
 			// Clean data
 			for (var i in items) {
@@ -155,12 +155,12 @@ var exportAll = function (request, response) {
 			// Send data
 			if (request.accepts('json')) {
 				response.set('Content-Type', 'application/json');
-				response.send(200, items);
+				response.status(200).send(items);
 			} else if (request.accepts('xml')) {
 				response.set('Content-Type', 'application/xml');
-				response.send(200, xml.convert('notes', items));
+				response.status(200).send(xml.convert('notes', items));
 			} else {
-				response.send(406, {error: 'Accepted response formats: JSON/XML'});
+				response.status(406).send({error: 'Accepted response formats: JSON/XML'});
 			}
 		}
 	});
@@ -173,23 +173,23 @@ var importAll = function (request, response) {
 	if (request.is('json')) {
 		noteDao.insert(request.user, request.body, function (err, items) {
 			if (err) {
-				response.send(503, {error: 'Database error: ' + err.message});
+				response.status(503).send({error: 'Database error: ' + err.message});
 			} else {
-				response.send(200, {message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
+				response.status(200).send({message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
 			}
 		});
 	} else if (request.is('xml')) {
 		xml.parse(request.rawBody, function (json) {
 			noteDao.insert(request.user, json.notes, function (err, items) {
 				if (err) {
-					response.send(503, {error: 'Database error: ' + err.message});
+					response.status(503).send({error: 'Database error: ' + err.message});
 				} else {
-					response.send(200, {message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
+					response.status(200).send({message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
 				}
 			});
 		});
 	} else {
-		response.send(415, {error: 'Accepted formats: JSON'});
+		response.status(415).send({error: 'Accepted formats: JSON'});
 	}
 };
 
