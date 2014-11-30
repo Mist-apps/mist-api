@@ -49,7 +49,7 @@ var login = function (request, response) {
 			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
 			if (item) {
-				// remove password from item
+				// Remove password from item
 				delete(item.password);
 				// Create token
 				var expires = new Date().getTime() + 14 * 24 * 60 * 60 * 1000;
@@ -120,12 +120,18 @@ var update = function(request, response) {
 		request.body.password = hash.digest('base64');
 	}
 	// Update user
-	userDao._update({_id: new db.ObjectID(request.user)}, {$set: request.body}, {}, function (err, result) {
+	userDao._update({_id: new db.ObjectID(request.user)}, {$set: request.body}, {}, function (err, item) {
 		if (err) {
 			response.status(503).send({error: 'Database error: ' + err.message});
 		} else {
-			if (result === 0) { response.status(404).send({error: 'Unable to find user'}); }
-			else { response.status(200).send(result); }
+			if (!item) {
+				response.status(404).send({error: 'Unable to find user'});
+			} else {
+				// Remove password from item
+				delete(item.password);
+				// Sent item
+				response.status(200).send(item);
+			}
 		}
 	});
 };
