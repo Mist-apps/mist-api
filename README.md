@@ -27,7 +27,10 @@ These manual works on debian-like distros (tested on Debian/Ubuntu).
 * go into the cloned repository: `cd /path/to/sources`
 * install the dependencies: `npm install`
 
-It's done ! You may access the api on http://localhost:8080. If you want to change the database connection information, or the integrated web-server URL and port, you can change the `/path/to/sources/config.json` file.
+It's done ! You may start develop the web application:
+* To run the api integrated webserver, use the `node api.js` command into the sources path.
+* You may access the api on http://localhost:8080.
+* If you want to change the database connection information, or the integrated web-server URL and port, you can change the `/path/to/sources/config.json` file.
 
 #### For a production installation:
 * clone the repository in the opt folder: `sudo git clone https://github.com/Mist-apps/mist-api.git /opt/mist-api`
