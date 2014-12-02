@@ -36,7 +36,7 @@ It's done ! You may access the api on http://localhost:8080. If you want to chan
 * install nginx: `sudo apt-get install nginx`
 * create the vhost file: `sudo vim /etc/nginx/etc/sites-available/mist-api`
 * add these contents:
-```
+``` Nginx
 server {
 
     listen 80;
@@ -61,7 +61,7 @@ server {
 * reload nginx: `sudo service nginx reload`
 * create the init-script: `sudo vim /etc/init.d/mist-api`
 * add these content:
-```
+``` Shell
 #! /bin/sh
 
 # Author: Leleux Laurent <lolo88l@hotmail.com>
