@@ -27,7 +27,7 @@ These manual works on debian-like distros (tested on Debian/Ubuntu).
 * go into the cloned repository: `cd /path/to/sources`
 * install the dependencies: `npm install`
 
-It's done ! You may access the api on http://localhost:8080.
+It's done ! You may access the api on http://localhost:8080. If you want to change the database connection information, or the integrated web-server URL and port, you can change the `/path/to/sources/config.json` file.
 
 #### For a production installation:
 * clone the repository in the opt folder: `sudo git clone https://github.com/Mist-apps/mist-api.git /opt/mist-api`
@@ -39,4 +39,4 @@ It's done ! You may access the api on http://localhost:8080.
 * reload nginx: `sudo service nginx reload`
 * add the init-script: `sudo mv mist-api /etc/init.d/ && sudo chown root:root /etc/init.d/mist-api`
 
-It's done ! You may access the api on http://my-api-domain-name/.
+It's done ! You may access the api on http://my-api-domain-name/. If you want to change the database connection information, or the integrated web-server URL and port, you can change the `/path/to/sources/config.json` file. Be careful, if you changes the integrated webserver parameters, you must adapt the `/etc/nginx/etc/sites-available/mist-api` config file to match the right webserver. Otherwise, nginx (as proxy) will forward the requests to the wrong server.
