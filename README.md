@@ -5,7 +5,7 @@ The Mist API is the main part of the Mist application. It provide CRUD methods f
 
 ## Installation
 
-The API works in standalone with it's own webserver. But it is not recommended to use it directly in production for security reasons. Use Nginx as proxy to listen on the port 80 and forward the requests to thew ebserver listening on port 8080 for examle. For a developpement installation, you may use the integrated webserver without nginx.
+The API works in standalone with it's own webserver. But it is not recommended to use it directly in production for security reasons. Use Nginx as proxy to listen on the port 80 and forward the requests to the webserver listening on port 8080 for examle. For a developpement installation, you may use the integrated webserver without nginx.
 
 The API rely on a MongoDB database for storing data.
 
@@ -22,23 +22,6 @@ These manual works on debian-like distros (tested on Debian/Ubuntu).
 * install build-essentials: `sudo apt-get install build-essentials`
 * install mongoDB: `sudo apt-get install mongodb`
 
-#### For a production installation:
-* install nginx: `sudo apt-get install nginx`
-* add the vhost: `sudo mv mist-api /etc/nginx/etc/sites-available/mist-api && sudo chown root:root /etc/nginx/etc/sites-available/mist-api`
-* enable the vhost: `sudo ln -s /etc/nginx/etc/sites-available/mist-api /etc/nginx/etc/sites-enabled/mist-api`
-* reload nginx: `sudo service nginx reload`
-
-#### All:
-* edit the deploy script: `vim deploy`
-* change the constants to match your paths. DEPLOY_PATH_* = where the files will be deployed, defaults are good. DEV_PATH_* = where your dev sources are stored (git clone), no need to change them for a production installation. *_API_URL = the url of the api for the web application. You need to change the one that match your installation (prod/dev).
-* add the deploy script: `sudo mv deploy /usr/local/bin/ && sudo chown root:root /usr/local/bin/deploy`
-* add the init-script: `sudo mv mist-api /etc/init.d/ && sudo chown root:root /etc/init.d/mist-api`
-
-#### For a production installation:
-* deploy the app: `deploy prod`
-* go into the sources path defined in the deployment script: `cd /path/to/sources`
-* install the dependencies: `sudo npm install`
-
 #### For a development installation:
 * clone the repository where you want: `git clone https://github.com/Mist-apps/mist-api.git /path/to/sources`
 * go into the cloned repository: `cd /path/to/sources`
@@ -46,6 +29,14 @@ These manual works on debian-like distros (tested on Debian/Ubuntu).
 
 It's done ! You may access the api on http://localhost:8080.
 
-## Troubleshooting
+#### For a production installation:
+* clone the repository in the opt folder: `sudo git clone https://github.com/Mist-apps/mist-api.git /opt/mist-api`
+* go into the cloned repository: `cd /opt/mist-api`
+* install the dependencies: `sudo npm install`
+* install nginx: `sudo apt-get install nginx`
+* add the vhost: `sudo mv mist-api /etc/nginx/etc/sites-available/mist-api && sudo chown root:root /etc/nginx/etc/sites-available/mist-api`
+* enable the vhost: `sudo ln -s /etc/nginx/etc/sites-available/mist-api /etc/nginx/etc/sites-enabled/mist-api`
+* reload nginx: `sudo service nginx reload`
+* add the init-script: `sudo mv mist-api /etc/init.d/ && sudo chown root:root /etc/init.d/mist-api`
 
-* If you have an `EACCES` error during the `npm install` command, please remove the npm tmp cache folder located in your home: `rm -rf /home/username/.npm` and retry again. This is due to some cache items written with the root permissions, so when accessing the cache with normal user permissions, it fails.
+It's done ! You may access the api on http://my-api-domain-name/.
