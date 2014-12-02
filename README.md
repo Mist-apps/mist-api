@@ -28,11 +28,6 @@ These manual works on debian-like distros (tested on Debian/Ubuntu).
 * enable the vhost: `sudo ln -s /etc/nginx/etc/sites-available/mist-api /etc/nginx/etc/sites-enabled/mist-api`
 * reload nginx: `sudo service nginx reload`
 
-#### For a development installation:
-* clone the repository where you want: `git clone https://github.com/lolo88l/mist-api.git /path/to/sources`
-* go into the cloned repository: `cd /path/to/sources`
-* install the dependencies: `npm install`
-
 #### All:
 * edit the deploy script: `vim deploy`
 * change the constants to match your paths. DEPLOY_PATH_* = where the files will be deployed, defaults are good. DEV_PATH_* = where your dev sources are stored (git clone), no need to change them for a production installation. *_API_URL = the url of the api for the web application. You need to change the one that match your installation (prod/dev).
@@ -45,6 +40,12 @@ These manual works on debian-like distros (tested on Debian/Ubuntu).
 * install the dependencies: `sudo npm install`
 
 #### For a development installation:
-* deploy the app: `deploy dev`
+* clone the repository where you want: `git clone https://github.com/Mist-apps/mist-api.git /path/to/sources`
+* go into the cloned repository: `cd /path/to/sources`
+* install the dependencies: `npm install`
 
-That's all ! Updating can be done by executing only the command: `deploy dev/prod`
+It's done ! You may access the api on http://localhost:8080.
+
+## Troubleshooting
+
+* If you have an `EACCES` error during the `npm install` command, please remove the npm tmp cache folder located in your home: `rm -rf /home/username/.npm` and retry again. This is due to some cache items written with the root permissions, so when accessing the cache with normal user permissions, it fails.
