@@ -14,7 +14,6 @@
 // Custom
 var logger = require('../modules/logger');
 var db = require('../modules/db');
-var xml = require('../modules/xml-parser');
 
 
 
@@ -134,7 +133,7 @@ var remove = function (request, response) {
 };
 
 /**
- * Export all the notes of the user in XML/JSON formats
+ * Export all the notes of the user in JSON format
  *
  * @method 	exportAll
  * @name 	Export all the notes
@@ -156,18 +155,15 @@ var exportAll = function (request, response) {
 			if (request.accepts('json')) {
 				response.set('Content-Type', 'application/json');
 				response.status(200).send(items);
-			} else if (request.accepts('xml')) {
-				response.set('Content-Type', 'application/xml');
-				response.status(200).send(xml.convert('notes', items));
 			} else {
-				response.status(406).send({error: 'Accepted response formats: JSON/XML'});
+				response.status(406).send({error: 'Accepted response formats: JSON'});
 			}
 		}
 	});
 };
 
 /**
- * Import all the notes of the use in XML/JSON formats
+ * Import all the notes of the use in JSON format
  */
 var importAll = function (request, response) {
 	if (request.is('json')) {
@@ -177,16 +173,6 @@ var importAll = function (request, response) {
 			} else {
 				response.status(200).send({message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
 			}
-		});
-	} else if (request.is('xml')) {
-		xml.parse(request.rawBody, function (json) {
-			noteDao.insert(request.user, json.notes, function (err, items) {
-				if (err) {
-					response.status(503).send({error: 'Database error: ' + err.message});
-				} else {
-					response.status(200).send({message: 'Import successful, ' + items.length + ' notes imported.', number: items.length});
-				}
-			});
 		});
 	} else {
 		response.status(415).send({error: 'Accepted formats: JSON'});

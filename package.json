@@ -9,7 +9,6 @@
     "express": "*",
     "jwt-simple": "*",
     "mongodb": "^2.0.5",
-    "winston": "*",
-    "xml2js": "^0.4.4"
+    "winston": "*"
   }
 }
