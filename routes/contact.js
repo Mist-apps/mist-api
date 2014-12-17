@@ -14,6 +14,7 @@
 // Custom
 var logger = require('../modules/logger');
 var db = require('../modules/db');
+var parser = require('../modules/contactsParser.js');
 
 
 
@@ -132,6 +133,30 @@ var remove = function (request, response) {
 	});
 };
 
+/**
+ * Import all the contacts of the user in Google CSV format
+ * Content-Type header must be text/csv; app=google
+ */
+var importAll = function (request, response) {
+	if (request.is('csv') && request.get('Content-Type').indexOf('app=google') > -1) {
+		parser.parseGoogle(request.rawBody, function (err, contacts) {
+			if (err) {
+				response.send(400).send({error: 'The CSV file cannot be parsed: ' + err.message});
+			} else {
+				contactDao.insert(request.user, contacts, function (err, items) {
+					if (err) {
+						response.status(503).send({error: 'Database error: ' + err.message});
+					} else {
+						response.status(200).send({message: 'Import successful, ' + items.length + ' contacts imported.', number: items.length});
+					}
+				});
+			}
+		})
+	} else {
+		response.status(415).send({error: 'Accepted formats: CSV (Google)'});
+	}
+};
+
 
 
 /**
@@ -144,3 +169,4 @@ exports.findAll = findAll;
 exports.insert = insert;
 exports.update = update;
 exports.remove = remove;
+exports.importAll = importAll;

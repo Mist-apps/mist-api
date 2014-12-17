@@ -63,7 +63,7 @@ var bootstrap = function (gracefulExitCallback, callback) {
 		// Load bootstrap config file
 		function (serieCallback) { config.load(serieCallback); },
 		// Open database connections
-		function (serieCallback) { console.log(JSON.stringify(config)); db.open(config.database.host, config.database.port, config.database.database, config.database.database, serieCallback); },
+		function (serieCallback) { db.open(config.database.host, config.database.port, config.database.database, config.database.database, serieCallback); },
 	];
 	// Execute tasks
 	async.series(tasks, function (err) {

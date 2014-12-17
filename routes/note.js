@@ -163,7 +163,7 @@ var exportAll = function (request, response) {
 };
 
 /**
- * Import all the notes of the use in JSON format
+ * Import all the notes of the user in JSON format
  */
 var importAll = function (request, response) {
 	if (request.is('json')) {

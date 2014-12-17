@@ -143,6 +143,7 @@ var _configureRoutes = function () {
 
 	// Contact
 	app.get('/contact', contactRoutes.findAll);
+	app.post('/contact/import', contactRoutes.importAll);
 	app.get('/contact/:id', contactRoutes.findById);
 	app.put('/contact/:id', contactRoutes.update);
 	app.post('/contact', contactRoutes.insert);
