@@ -134,6 +134,36 @@ var remove = function (request, response) {
 };
 
 /**
+ * Export all the contacts of the user in JSON format
+ *
+ * @method 	exportAll
+ * @name 	Export all the contacts
+ */
+var exportAll = function (request, response) {
+	contactDao.findAll(request.user, function (err, items) {
+		if (err) {
+			response.status(503).send({error: 'Database error: ' + err.message});
+		} else {
+			// Clean data
+			for (var i in items) {
+				for (var key in items[i]) {
+					if (key.substr(0, 1) === '_') {
+						delete items[i][key];
+					}
+				}
+			}
+			// Send data
+			if (request.accepts('json')) {
+				response.set('Content-Type', 'application/json');
+				response.status(200).send(items);
+			} else {
+				response.status(406).send({error: 'Accepted response formats: JSON'});
+			}
+		}
+	});
+};
+
+/**
  * Import all the contacts of the user in Google CSV format
  * Content-Type header must be text/csv; app=google
  */
@@ -169,4 +199,5 @@ exports.findAll = findAll;
 exports.insert = insert;
 exports.update = update;
 exports.remove = remove;
+exports.exportAll = exportAll;
 exports.importAll = importAll;
