@@ -51,6 +51,7 @@ var parseGoogle = function (csv, callback) {
 			for (var i in googleContacts) {
 				// New Mist contact
 				var contact = {};
+				contact.creationDate = contact.modificationDate = new Date().getTime();
 				mistContacts.push(contact);
 				// First name
 				if (googleContacts[i]['Given Name']) {
