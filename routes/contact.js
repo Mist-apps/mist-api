@@ -164,12 +164,15 @@ var exportAll = function (request, response) {
 };
 
 /**
- * Import all the contacts of the user in Google CSV format
- * Content-Type header must be text/csv; app=google
+ * Import all the contacts of the user in Google CSV format or the Mist JSON format
+ * Content-Type header must be
+ *		- text/csv; app=google
+ *		- application/json; app=mist
  */
 var importAll = function (request, response) {
+	// Google CSV
 	if (request.is('csv') && request.get('Content-Type').indexOf('app=google') > -1) {
-		parser.parseGoogle(request.rawBody, function (err, contacts) {
+		parser.parseGoogle(request.body, function (err, contacts) {
 			if (err) {
 				response.send(400).send({error: 'The CSV file cannot be parsed: ' + err.message});
 			} else {
@@ -182,8 +185,20 @@ var importAll = function (request, response) {
 				});
 			}
 		})
-	} else {
-		response.status(415).send({error: 'Accepted formats: CSV (Google)'});
+	}
+	// Mist JSON
+	else if (request.is('json') && request.get('Content-Type').indexOf('app=mist') > -1) {
+		contactDao.insert(request.user, request.body, function (err, items) {
+			if (err) {
+				response.status(503).send({error: 'Database error: ' + err.message});
+			} else {
+				response.status(200).send({message: 'Import successful, ' + items.length + ' contacts imported.', number: items.length});
+			}
+		});
+	}
+	// Unknown
+	else {
+		response.status(415).send({error: 'Accepted formats: CSV (Google), JSON (Mist)'});
 	}
 };
 

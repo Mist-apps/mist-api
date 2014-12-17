@@ -167,6 +167,8 @@ var exportAll = function (request, response) {
  */
 var importAll = function (request, response) {
 	if (request.is('json')) {
+		console.log(request.body);
+		return;
 		noteDao.insert(request.user, request.body, function (err, items) {
 			if (err) {
 				response.status(503).send({error: 'Database error: ' + err.message});
