@@ -172,15 +172,24 @@ var exportAll = function (request, response) {
 var importAll = function (request, response) {
 	// Google CSV
 	if (request.is('csv') && request.get('Content-Type').indexOf('app=google') > -1) {
+		// Parse the data
 		parser.parseGoogle(request.body, function (err, contacts) {
 			if (err) {
 				response.send(400).send({error: 'The CSV file cannot be parsed: ' + err.message});
 			} else {
-				contactDao.insert(request.user, contacts, function (err, items) {
+				// Clean the groups
+				_cleanGroups(request.user, contacts, function (err) {
 					if (err) {
-						response.status(503).send({error: 'Database error: ' + err.message});
+						response.send(503).send({error: 'Unable to manage the groups: ' + err.message});
 					} else {
-						response.status(200).send({message: 'Import successful, ' + items.length + ' contacts imported.', number: items.length});
+						// Insert the contacts
+						contactDao.insert(request.user, contacts, function (err, items) {
+							if (err) {
+								response.status(503).send({error: 'Database error: ' + err.message});
+							} else {
+								response.status(200).send({message: 'Import successful, ' + items.length + ' contacts imported.', number: items.length});
+							}
+						});
 					}
 				});
 			}
@@ -200,6 +209,57 @@ var importAll = function (request, response) {
 	else {
 		response.status(415).send({error: 'Accepted formats: CSV (Google), JSON (Mist)'});
 	}
+};
+
+/**
+ * Clean the contacts adding the groups or removing them if
+ * they already exists.
+ * The contacts are directly modified, no other data is returned.
+ *
+ * @param user the user making the query
+ * @param contacts the contacts to clean
+ * @param callback a callback with an error, or null
+ */
+var _cleanGroups = function (user, contacts, callback) {
+	contactDao.find(user, {name: {$exists: 1}}, function (err, items) {
+		// If there is an error
+		if (err) {
+			if (callback) callback(new Error('[Contact] Unable to clean groups: ' + err.message));
+			return;
+		}
+		// Get groups names (the starred group is default)
+		var groups = ['Starred'];
+		for (var i in items) {
+			groups.push(items[i].name);
+		}
+		// Check contacts
+		for (var i in contacts) {
+			// If it is a group
+			if (contacts[i].name) {
+				// If the group already exists, delete it
+				if (groups.indexOf(contacts[i].name) > -1) {
+					delete contacts[i].name;
+				}
+			}
+			// If it is a contact and it has groups
+			else if (contacts[i].groups) {
+				// Check each group
+				for (var j in contacts[i].groups) {
+					// If the group does not exist yet, add it
+					if (groups.indexOf(contacts[i].groups[j]) === -1) {
+						contacts.push({
+							creationDate: new Date().getTime(),
+							name: contacts[i].groups[j],
+							icon: 'fa-users'
+						});
+						groups.push(contacts[i].groups[j]);
+					}
+				}
+			}
+		}
+		// Callback
+		if (callback) callback(null);
+	});
 };
 
 

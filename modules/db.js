@@ -475,7 +475,7 @@ Dao.prototype.find = function (user, query, callback) {
 		return;
 	}
 	query._user = user;
-	this._find({_user: user}, callback);
+	this._find(query, callback);
 };
 
 /**
