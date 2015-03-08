@@ -38,7 +38,7 @@ It's done ! You may start develop the web application:
 * go into the cloned repository: `cd /opt/mist-api`
 * install the dependencies: `sudo npm install`
 * install nginx: `sudo apt-get install nginx`
-* create the vhost file: `sudo vim /etc/nginx/etc/sites-available/mist-api`
+* create the vhost file: `sudo vim /etc/nginx/sites-available/mist-api`
 * add these contents:
 ``` Nginx
 server {
