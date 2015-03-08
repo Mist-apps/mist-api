@@ -61,7 +61,7 @@ server {
 }
 ```
 * set the rights on the vhost file: `sudo chown root:root /etc/nginx/sites-available/mist-api`
-* enable the vhost: `sudo ln -s /etc/nginx/etc/sites-available/mist-api /etc/nginx/sites-enabled/mist-api`
+* enable the vhost: `sudo ln -s /etc/nginx/sites-available/mist-api /etc/nginx/sites-enabled/mist-api`
 * reload nginx: `sudo service nginx reload`
 * create the init-script: `sudo vim /etc/init.d/mist-api`
 * add these content:
