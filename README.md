@@ -19,6 +19,7 @@ These manual works on debian-like distros (tested on Debian/Ubuntu).
 * add debian backports repository: `egrep -q "deb .*backports" /etc/apt/sources.list || echo "deb http://ftp.fr.debian.org/debian/ wheezy-backports main" | sudo tee -a /etc/apt/sources.list > /dev/null`
 * update the package indexes: `sudo apt-get update`
 * install nodejs: `sudo apt-get install nodejs nodejs-legacy`
+* install npm: `curl https://www.npmjs.com/install.sh | sudo sh`
 * install build-essential: `sudo apt-get install build-essential`
 * install mongoDB: `sudo apt-get install mongodb`
 
