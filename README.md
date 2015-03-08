@@ -175,7 +175,8 @@ case "$1" in
                 ;;
 esac
 ```
-* set the rights on the init-script`sudo chown root:root /etc/init.d/mist-api`
+* set the rights on the init-script: `sudo chown root:root /etc/init.d/mist-api`
+* set it executable: `sudo chmod +x /etc/init.d/mist-api`
 * let the integrated web-server start on boot: `sudo update-rc.d mist-api defaults`
 
 It's done ! You may access the api on http://my-api-domain-name/. If you want to change the database connection information, or the integrated web-server URL and port, you can change the `/path/to/sources/config.json` file. Be careful, if you changes the integrated webserver parameters, you must adapt the `/etc/nginx/etc/sites-available/mist-api` config file to match the right webserver. Otherwise, nginx (as proxy) will forward the requests to the wrong server.
